@@ -3,12 +3,34 @@ import { TypeTodo } from '../interfaces/todo.interface.ts'
 import { IBody } from '../interfaces/body.interface.ts';
 import todo from '../source.ts'
 
-export const getPage = ({ response }: { response: any }) => {
+/**
+ * [GET] http://127.0.0.1:8009/todos
+*/
+export const getTodos = async ({ request, response }: { request: any, response: any }) => {
+    const data = await todo.find({ name: { $ne: null } })
     response.body = {
-        saludo: '¡Hola Mundo!'
+        status: 200,
+        data
     }
 }
 
+/**
+ * [GET] http://127.0.0.1:8009/todo/5edfcc3500cc3198003ec638
+*/
+export const getTodo = async ({ request, response, params }: { request: any, response: any, params: { _id: string } }) => {
+    const data = await todo.findOne({ _id: { $oid: params._id } })
+    response.body = {
+        status: 200,
+        data
+    }
+}
+
+/**
+ * [POST] http://127.0.0.1:8009/create
+ * 
+ * Postman option raw JSON
+ * {"name": "Nodejs"}
+*/
 export const postTodo = async ({ request, response }: { request: any, response: any }) => {
     if (!request.hasBody) {
         response.body = {
@@ -26,7 +48,7 @@ export const postTodo = async ({ request, response }: { request: any, response: 
     
         /**
          * En caso de no realizar un index en la base de datos con el campo name
-         * se realiza la consulta con el aggregate para validar insertar datos repetidos.
+         * se realiza la consulta con el aggregate para evitar la insercción datos repetidos.
         */
         const todoFind = await todo.aggregate([ { $match: data }, { $group: { _id: '$name', total: { $sum: 1 } } } ])
     
@@ -46,6 +68,12 @@ export const postTodo = async ({ request, response }: { request: any, response: 
 
 }
 
+/**
+ * [PUT] http://127.0.0.1:8009/update
+ * 
+ * Postman option raw JSON
+ * {"_id": "5edfcc3500cc3198003ec638", "name": "JavaScript"}
+*/
 export const putTodo = async ({ request, response }: { request: any, response: any }) => {
     if (!request.hasBody) {
         response.body = {
@@ -75,5 +103,41 @@ export const putTodo = async ({ request, response }: { request: any, response: a
             }
         }
     }
+}
 
+/**
+ * [DELETE] http://127.0.0.1:8009/delete
+ * 
+ * Postman option raw JSON
+ * {"_id": "5edfcc3500cc3198003ec638"}
+*/
+export const deleteTodo = async ({ request, response }: { request: any, response: any }) => {
+    if (!request.hasBody) {
+        response.body = {
+            status: 400,
+            error: `No data provided`
+        }
+    } else {
+        const body = await request.body({
+            contentTypes: {
+                text: ['appplication/ld+json']
+            }
+        }) as IBody;
+    
+        const data = body.value as TypeTodo
+    
+        const deleteTodo = await todo.deleteOne({ _id: { $oid: data._id } })
+    
+        if (deleteTodo === 1) {
+            response.body = {
+                status: 200,
+                success: `Success request, resource delete with id: ${data._id}`
+            }
+        } else {
+            response.body = {
+                status: 400,
+                error: `Request cannot processed`
+            }
+        }
+    }
 }
