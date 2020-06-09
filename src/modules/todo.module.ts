@@ -11,38 +11,68 @@ export const getPage = ({ response }: { response: any }) => {
 
 export const postTodo = async ({ request, response }: { request: any, response: any }) => {
     if (!request.hasBody) {
-        response.status = 400
         response.body = {
-            success: false,
+            status: 400,
             error: `No data provided`
         }
-        return;
+    } else {
+        const body = await request.body({
+            contentTypes: {
+                text: ['application/ld+json']
+            }
+        }) as IBody
+    
+        const data = body.value as TypeTodo
+    
+        /**
+         * En caso de no realizar un index en la base de datos con el campo name
+         * se realiza la consulta con el aggregate para validar insertar datos repetidos.
+        */
+        const todoFind = await todo.aggregate([ { $match: data }, { $group: { _id: '$name', total: { $sum: 1 } } } ])
+    
+        if (!todoFind.length) {
+            const newTodo = await todo.insertOne(data)
+            response.body = {
+                status: 200,
+                success: `Success request, resource saved with id: ${newTodo.$oid}`
+            }
+        } else {
+            response.body = {
+                status: 409,
+                error: `Request could not be completed due to a conflict, the resource ${body.value.name} is already registered`
+            }
+        }
     }
 
-    const body = await request.body({
-        contentTypes: {
-            text: ['application/ld+json']
-        }
-    }) as IBody
+}
 
-    const data = body.value as TypeTodo
-
-    /**
-     * En caso de no realizar un index en la base de datos con el campo name
-     * se realiza la consulta con el aggregate para validar insertar datos repetidos.
-    */
-    const todoFind = await todo.aggregate([ { $match: data }, { $group: { _id: '$name', total: { $sum: 1 } } } ])
-
-    if (!todoFind.length) {
-        const newTodo = await todo.insertOne(data)
+export const putTodo = async ({ request, response }: { request: any, response: any }) => {
+    if (!request.hasBody) {
         response.body = {
-            status: 200,
-            success: `Success request, resource saved with id: ${newTodo.$oid}`
+            status: 400,
+            error: `No data provided`
         }
     } else {
-        response.body = {
-            status: 409,
-            error: `Request could not be completed due to a conflict, the resource ${body.value.name} is already registered`
+        const body = await request.body({
+            contentTypes: {
+                text: ['appplication/ld+json']
+            }
+        }) as IBody;
+    
+        const data = body.value as TypeTodo
+    
+        const { modifiedCount } = await todo.updateOne({ _id: { $oid: data._id } }, { name: data.name })
+    
+        if (modifiedCount === 1) {
+            response.body = {
+                status: 200,
+                success: `Success request, resource update with id: ${data._id}`
+            }
+        } else {
+            response.body = {
+                status: 400,
+                error: `Request cannot processed`
+            }
         }
     }
 
