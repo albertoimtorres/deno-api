@@ -1,0 +1,19 @@
+{
+  "$schema": "https://deno.land/x/denon/schema.json",
+  "scripts": {
+    "start": {
+      "cmd": "deno run server.ts",
+      "desc": "run my server.ts file",
+      "unstable": true,
+      "inspect": "127.0.0.1:8005",
+      "watch": true,
+      "allow": [
+        "net",
+        "write",
+        "read",
+        "plugin"
+      ]
+    }
+  }
+}
+

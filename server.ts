@@ -3,7 +3,7 @@ import { yellow, green } from 'https://deno.land/std/fmt/colors.ts'
 import router from './src/router.ts';
 
 const app = new Application()
-const port = 8009
+const port = 8005
 
 app.use(router.routes())
 app.use(router.allowedMethods())
