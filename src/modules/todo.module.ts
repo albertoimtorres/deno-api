@@ -4,7 +4,7 @@ import { IBody } from '../interfaces/body.interface.ts';
 import todo from '../source.ts'
 
 /**
- * [GET] http://127.0.0.1:8009/todos
+ * [GET] http://127.0.0.1:3005/todos
 */
 export const getTodos = async ({ request, response }: { request: any, response: any }) => {
     const data = await todo.find({ name: { $ne: null } })
@@ -15,7 +15,7 @@ export const getTodos = async ({ request, response }: { request: any, response: 
 }
 
 /**
- * [GET] http://127.0.0.1:8009/todo/5edfcc3500cc3198003ec638
+ * [GET] http://127.0.0.1:3005/todo/5edfcc3500cc3198003ec638
 */
 export const getTodo = async ({ request, response, params }: { request: any, response: any, params: { _id: string } }) => {
     const data = await todo.findOne({ _id: { $oid: params._id } })
@@ -26,7 +26,7 @@ export const getTodo = async ({ request, response, params }: { request: any, res
 }
 
 /**
- * [POST] http://127.0.0.1:8009/create
+ * [POST] http://127.0.0.1:3005/create
  * 
  * Postman option raw JSON
  * {"name": "Nodejs"}
@@ -69,7 +69,7 @@ export const postTodo = async ({ request, response }: { request: any, response: 
 }
 
 /**
- * [PUT] http://127.0.0.1:8009/update
+ * [PUT] http://127.0.0.1:3005/update
  * 
  * Postman option raw JSON
  * {"_id": "5edfcc3500cc3198003ec638", "name": "JavaScript"}
@@ -106,7 +106,7 @@ export const putTodo = async ({ request, response }: { request: any, response: a
 }
 
 /**
- * [DELETE] http://127.0.0.1:8009/delete
+ * [DELETE] http://127.0.0.1:3005/delete
  * 
  * Postman option raw JSON
  * {"_id": "5edfcc3500cc3198003ec638"}
