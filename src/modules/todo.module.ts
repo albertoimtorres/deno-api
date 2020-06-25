@@ -45,18 +45,18 @@ export const getTodo = async ({ request, response, params }: { request: any, res
  * [GET] http://127.0.0.1:3005/api/v1/pagination?skip=1&limit=5
 */
 export const getPagination = async (ctx: any, next: any) => {
-    let query = getQuery(ctx, { mergeParams: true });
+    let query = getQuery(ctx, { mergeParams: true })
 
     if (!query.limit) {
         ctx.response.status = 400
         ctx.response.body = {
             error: `Request required limit query param`
-        };
+        }
     } else if (!query.skip) {
         ctx.response.status = 400
         ctx.response.body = {
             error: `Request required skip query param`
-        };
+        }
     } else {
         let skip = Number(query.skip); /* Current page */
         let limit = Number(query.limit); /* Elements number per page */
@@ -65,23 +65,37 @@ export const getPagination = async (ctx: any, next: any) => {
             ctx.response.status = 400
             ctx.response.body = {
                 error: `Invalid page number, should start with 1`
-            };
+            }
         } else {
             try {
-                // const pagination = await todo.aggregate([ { $match: {} }, { $skip: (skip - 1) * limit }, { $limit: limit } ]) /* Calculated number total element per page */
+                /**
+                 * Methods of pagination
+                 *
+                 * Calculated number total element per page
+                 *
+                 * First method
+                 * const pagination = await todo.aggregate([ { $match: {} }, { $skip: (skip - 1) * limit }, { $limit: limit } ])
+                 *
+                 * Second method
+                 * const data = await (await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit } ]))
+                */
                 const data = await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit } ])
                 const [ count ] = await todo.aggregate([ { $match: {} }, { $count: "name" } ])
+                const pages = (count && count.name) ? Math.ceil(count.name / limit) : 0
+                const doc = data.map((doc: any, index: number) => { return {id: doc._id.$oid, name: doc.name} })
+
                 ctx.response.status = 200
                 ctx.response.body = {
-                    data,// pagination,
-                    current: skip,
-                    pages: (count && count.name) ? Math.ceil(count.name / limit) : 0 /* Total pages */
+                    doc, // pagination,
+                    current: skip, // current page
+                    pages /* Total pages */
                 }
+
             } catch (err) {
                 ctx.response.status = 500
                 ctx.response.body = {
                     err
-                };
+                }
             }
         }
     }
