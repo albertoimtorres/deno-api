@@ -24,12 +24,14 @@ Connection to Mongodb
 
 # API
 
-*[GET] /todos*
+*[GET] /api/v1/todos*
 
-*[GET] /todo/5edfcc3500cc3198003ec638*
+*[GET] /api/v1/todo/5edfcc3500cc3198003ec638*
 
-*[POST] /create*
+*[GET]* /api/v1/pagination?skip=1&limit=5
 
-*[PUT] /update*
+*[POST] /api/v1/create*
 
-*[DELETE] /delete*
+*[PUT] /api/v1/update*
+
+*[DELETE] /api/v1/delete*
