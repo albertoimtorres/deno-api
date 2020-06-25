@@ -79,16 +79,23 @@ export const getPagination = async (ctx: any, next: any) => {
                  * Second method
                  * const data = await (await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit } ]))
                 */
-                const data = await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit } ])
+                const data = await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit }, { $sort: { name: -1 } } ])
                 const [ count ] = await todo.aggregate([ { $match: {} }, { $count: "name" } ])
                 const pages = (count && count.name) ? Math.ceil(count.name / limit) : 0
                 const doc = data.map((doc: any, index: number) => { return {id: doc._id.$oid, name: doc.name} })
 
-                ctx.response.status = 200
-                ctx.response.body = {
-                    doc, // pagination,
-                    current: skip, // current page
-                    pages /* Total pages */
+                if (skip > pages) {
+                    ctx.response.status = 400
+                    ctx.response.body = {
+                        error: `Invalid page number, It cannot be greater than the total number of pages`
+                    }
+                } else {
+                    ctx.response.status = 200
+                    ctx.response.body = {
+                        doc, // pagination,
+                        current: skip, // current page
+                        pages /* Total pages */
+                    }
                 }
 
             } catch (err) {
