@@ -24,6 +24,10 @@ Connection to Mongodb
 
 # API
 
+*[POST] /api/v1/register*
+
+*[POST] /api/v1/login*
+
 *[GET] /api/v1/todos*
 
 *[GET] /api/v1/todo/5edfcc3500cc3198003ec638*

@@ -1,11 +1,12 @@
 import { validateJwt } from 'https://deno.land/x/djwt/validate.ts'
-import { makeJwt, setExpiration, Jose, Payload } from 'https://deno.land/x/djwt/create.ts'
+import { makeJwt, setExpiration, Jose, Payload, } from 'https://deno.land/x/djwt/create.ts'
 
 const key: string = `${Deno.env.get('SEED')}`
 
 const payload: Payload = {
     iss: '',
-    exp: setExpiration(new Date().getTime() + 60000)
+    /* One hour from now */
+    exp: setExpiration(new Date().getTime() + 60 * 60 * 1000) // setExpiration(new Date().getTime() + 86400)
 }
 
 const header: Jose = {
