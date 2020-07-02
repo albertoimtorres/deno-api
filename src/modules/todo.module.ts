@@ -1,8 +1,16 @@
-import { helpers, Status } from 'https://deno.land/x/oak/mod.ts';
+import { helpers, Status } from 'https://deno.land/x/oak/mod.ts'
 import { TypeTodo } from '../interfaces/todo.interface.ts'
 import { IBody } from '../interfaces/body.interface.ts'
-import todo from '../source.ts'
+import db from '../source.ts'
 
+/**
+ * Get collection
+*/
+const todo = db.collection(`${Deno.env.get('COLLECTION')}`)
+
+/**
+ * Get function getQuery, merge queryset params of url
+*/
 const { getQuery } = helpers;
 
 /**
