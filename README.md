@@ -24,18 +24,37 @@ Connection to Mongodb
 
 # API
 
-*[POST] /api/v1/register*
+  # [POST]:
+    User registration, required fields email and password.
+    URL: api/v1/register
 
-*[POST] /api/v1/login*
+  # [POST]:
+    Login.
+    URL: /api/v1/login
 
-*[GET] /api/v1/todos*
+  # [POST]:
+    Create new item from to-do list, name required field.
+    URL: /api/v1/create
 
-*[GET] /api/v1/todo/5edfcc3500cc3198003ec638*
+  # [GET]:
+    Get all items from to-do list.
+    URL: /api/v1/todos
 
-*[GET]* /api/v1/pagination?skip=1&limit=5
+  # [GET]:
+    Gets a single item by its id.
+    URL: /api/v1/todo/5edfcc3500cc3198003ec638
 
-*[POST] /api/v1/create*
+  # [GET]:
+    Pagination from to-do list.
+    URL: /api/v1/pagination?skip=1&limit=5
 
-*[PUT] /api/v1/update*
+  # [PUT]:
+    Updating the item's data, the required field is: id and name.
+    URL: /api/v1/update
 
-*[DELETE] /api/v1/delete*
+  # [DELETE]:
+    Delete item, id required field
+    URL: /api/v1/delete
+
+## New integrations
+# In future changes, I will integrate API documentation with swagger
