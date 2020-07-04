@@ -1,8 +1,16 @@
-import { helpers, Status } from 'https://deno.land/x/oak/mod.ts';
+import { helpers, Status } from 'https://deno.land/x/oak/mod.ts'
 import { TypeTodo } from '../interfaces/todo.interface.ts'
 import { IBody } from '../interfaces/body.interface.ts'
-import todo from '../source.ts'
+import db from '../source.ts'
 
+/**
+ * Get collection
+*/
+const todo = db.collection(`${Deno.env.get('COLLECTION')}`)
+
+/**
+ * Get function getQuery, merge queryset params of url
+*/
 const { getQuery } = helpers;
 
 /**
@@ -79,16 +87,22 @@ export const getPagination = async (ctx: any, next: any) => {
                  * Second method
                  * const data = await (await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit } ]))
                 */
-                const data = await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit }, { $sort: { name: -1 } } ])
+                const data = await todo.aggregate([ { $match: {} }, { $skip: ((limit * skip) - limit) }, { $limit: limit }, { $sort: { _id: 1 } } ])
                 const [ count ] = await todo.aggregate([ { $match: {} }, { $count: "name" } ])
                 const pages = (count && count.name) ? Math.ceil(count.name / limit) : 0
-                const doc = data.map((doc: any, index: number) => { return {id: doc._id.$oid, name: doc.name} })
+                const doc = data.map((doc: any, index: number) => { return {_id: doc._id.$oid, name: doc.name} })
 
                 if (skip > pages) {
-                    ctx.response.status = 400
+                    ctx.response.status = 200
                     ctx.response.body = {
-                        error: `Invalid page number, It cannot be greater than the total number of pages`
+                        doc, // pagination,
+                        current: skip, // current page
+                        pages /* Total pages */
                     }
+                    // ctx.response.status = 400
+                    // ctx.response.body = {
+                    //     error: `Invalid page number, It cannot be greater than the total number of pages`
+                    // }
                 } else {
                     ctx.response.status = 200
                     ctx.response.body = {

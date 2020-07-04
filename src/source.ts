@@ -2,9 +2,8 @@ import { init, MongoClient } from "https://deno.land/x/mongo@v0.8.0/mod.ts";
 
 const client = new MongoClient()
 
-client.connectWithUri(`mongodb://127.0.0.1:27017`)
+client.connectWithUri(`${Deno.env.get('URI_MONGO')}:${Deno.env.get('PORT_MONGO')}`)
 
-const db = client.database('todos')
-const todo = db.collection('todo')
+const db = client.database(`${Deno.env.get('DB')}`)
 
-export default todo;
+export default db;

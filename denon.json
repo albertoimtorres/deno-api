@@ -9,6 +9,7 @@
       "allow": [
         "net",
         "write",
+        "env",
         "read",
         "plugin"
       ]

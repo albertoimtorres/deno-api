@@ -2,10 +2,11 @@ import { requestTraceMiddleware } from "https://raw.githubusercontent.com/deepak
 import { Application, Middleware, isHttpError, Status } from 'https://deno.land/x/oak/mod.ts'
 import { yellow, green } from 'https://deno.land/std/fmt/colors.ts'
 import { oakCors } from 'https://deno.land/x/cors/mod.ts'
+import "https://deno.land/x/dotenv/load.ts";
 import router from './src/router.ts';
 
 const app = new Application()
-const port = 3005
+const port = Number(Deno.env.get('PORT'))
 
 /**
  * HTTP request logger middleware for oak Deno
@@ -15,12 +16,17 @@ app.use(requestTraceMiddleware<Middleware>({ type: 'combined' }))
 /**
  * CORS to frontend Angular
 */
-app.use(oakCors({ origin: /^.+localhost:4200$/, optionsSuccessStatus: 200 }))
+// app.use(oakCors({ origin: /^.+localhost:4200$/, optionsSuccessStatus: 200 }))
 
 /**
  * CORS to frontend Reactjs
 */
 // app.use(oakCors({ origin: /^.+localhost:3500$/, optionsSuccessStatus: 200 }))
+
+app.use(oakCors({
+    origin: /^.+localhost:3500$/,
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+}))
 
 app.use(router.routes())
 app.use(router.allowedMethods())
@@ -33,7 +39,6 @@ app.use(async (ctx, next) => {
         await next()
     } catch (err) {
         if (isHttpError(err)) {
-            console.log(err, '¿ERROR?')
             switch (err.status) {
                 case Status.NotFound:
                     ctx.response.status = 404
